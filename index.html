@@ -123,20 +123,21 @@
 
     <div id="game-container" class="max-w-2xl w-full bg-black/80 border border-gray-800 rounded shadow-2xl relative z-10 p-4 sm:p-6 min-h-[85vh] max-h-[95dvh] sm:min-h-[600px] flex flex-col backdrop-blur-sm transition-colors duration-500">
         
-        <!-- UV Toggle Button -->
-        <button id="uv-toggle-btn" onclick="toggleUV()" class="hidden absolute -top-12 right-0 bg-purple-900/80 hover:bg-purple-700 text-purple-200 border border-purple-500 px-4 py-2 rounded shadow-[0_0_15px_rgba(168,85,247,0.4)] font-bold tracking-widest transition-all z-50">
-            [ UV LIGHT : <span id="uv-status">OFF</span> ]
-        </button>
-
-        <!-- Header with Timer -->
-        <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-2 transition-colors duration-500" id="header-border">
-            <div class="flex flex-col">
-                <span id="timer-display" class="hidden text-red-500 font-mono text-2xl font-bold tracking-widest mb-1 drop-shadow-[0_0_5px_currentColor]">40:00</span>
-                <h1 class="text-xl font-bold pixel-font tracking-widest text-red-600 transition-colors duration-500" id="header-title">
+        <!-- Header with Timer and UV Button -->
+        <div class="flex justify-between items-start mb-4 sm:mb-6 border-b border-gray-800 pb-3 transition-colors duration-500" id="header-border">
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-3">
+                    <span id="timer-display" class="hidden text-red-500 font-mono text-xl sm:text-2xl font-bold tracking-widest drop-shadow-[0_0_5px_currentColor] leading-none">40:00</span>
+                    <!-- UV Toggle Button -->
+                    <button id="uv-toggle-btn" onclick="toggleUV()" class="hidden bg-purple-900/80 hover:bg-purple-700 text-purple-200 border border-purple-500 px-3 py-1.5 text-xs sm:text-sm rounded shadow-[0_0_10px_rgba(168,85,247,0.4)] font-bold tracking-widest transition-all z-50">
+                        UV LIGHT: <span id="uv-status">OFF</span>
+                    </button>
+                </div>
+                <h1 class="text-lg sm:text-xl font-bold pixel-font tracking-widest text-red-600 transition-colors duration-500 leading-none mt-1" id="header-title">
                     PROT: LAST_HOPE
                 </h1>
             </div>
-            <div id="inventory" class="flex gap-2 flex-wrap justify-end max-w-[50%]"></div>
+            <div id="inventory" class="flex gap-1.5 flex-wrap justify-end max-w-[40%]"></div>
         </div>
 
         <!-- Main Scene -->
