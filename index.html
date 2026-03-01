@@ -12,7 +12,8 @@
             background-color: #050505;
             color: #d0d0d0;
             font-family: 'M PLUS 1p', sans-serif;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             transition: background-color 0.5s ease, color 0.5s ease;
         }
 
@@ -40,7 +41,8 @@
         }
 
         .bg-bunker {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000');
             background-size: cover; background-position: center; z-index: -1;
             transition: filter 0.5s;
@@ -115,11 +117,11 @@
         body.uv-mode #scene-display::-webkit-scrollbar-thumb { background: #60c; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-3 sm:p-4">
     <div class="bg-bunker"></div>
     <div class="crt-overlay"></div>
 
-    <div id="game-container" class="max-w-2xl w-full bg-black/80 border border-gray-800 rounded shadow-2xl relative z-10 p-6 min-h-[600px] flex flex-col backdrop-blur-sm transition-colors duration-500">
+    <div id="game-container" class="max-w-2xl w-full bg-black/80 border border-gray-800 rounded shadow-2xl relative z-10 p-4 sm:p-6 min-h-[85vh] max-h-[95dvh] sm:min-h-[600px] flex flex-col backdrop-blur-sm transition-colors duration-500">
         
         <!-- UV Toggle Button -->
         <button id="uv-toggle-btn" onclick="toggleUV()" class="hidden absolute -top-12 right-0 bg-purple-900/80 hover:bg-purple-700 text-purple-200 border border-purple-500 px-4 py-2 rounded shadow-[0_0_15px_rgba(168,85,247,0.4)] font-bold tracking-widest transition-all z-50">
