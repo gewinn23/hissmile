@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>his smile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+1p:wght@400;700&family=Share+Tech+Mono&display=swap');
+        
+        body {
+            background-color: #050505;
+            color: #d0d0d0;
+            font-family: 'M PLUS 1p', sans-serif;
+            overflow: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        /* UV Mode Base Variables */
+        body.uv-mode {
+            background-color: #02000a;
+            color: #8b8bff;
+        }
+
+        .pixel-font { font-family: 'DotGothic16', sans-serif; }
+        .mono-font { font-family: 'Share Tech Mono', monospace; }
+
+        .crt-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none; z-index: 50;
+            transition: opacity 0.5s;
+        }
+        
+        body.uv-mode .crt-overlay {
+            background: linear-gradient(rgba(30, 0, 50, 0.1) 50%, rgba(0, 0, 0, 0.4) 50%);
+            background-size: 100% 2px;
+        }
+
+        .bg-bunker {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000');
+            background-size: cover; background-position: center; z-index: -1;
+            transition: filter 0.5s;
+        }
+        body.uv-mode .bg-bunker { filter: hue-rotate(240deg) saturate(1.5) brightness(0.7); }
+
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+            40%, 60% { transform: translate3d(3px, 0, 0); }
+        }
+
+        /* --- Creepy Glitch Effect --- */
+        .glitch-text {
+            animation: glitch 0.15s linear infinite, fadeOutGlitch 0.6s ease-out forwards;
+            text-shadow: 5px 0px 0px rgba(255,0,0,0.8), -5px 0px 0px rgba(0,0,255,0.8);
+        }
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-4px, 4px) }
+            40% { transform: translate(-4px, -4px) }
+            60% { transform: translate(4px, 4px) }
+            80% { transform: translate(4px, -4px) }
+            100% { transform: translate(0) }
+        }
+        @keyframes fadeOutGlitch {
+            0% { opacity: 1; transform: scale(1); filter: contrast(2) brightness(1.5); }
+            70% { opacity: 0.8; filter: contrast(1.2) brightness(1); }
+            100% { opacity: 0; transform: scale(1.1); filter: contrast(0); }
+        }
+
+        /* --- Story Fade In Effect --- */
+        .fade-in-line {
+            opacity: 0;
+            animation: fadeInLine 2s ease-in-out forwards;
+        }
+        @keyframes fadeInLine {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Ending Special Effect --- */
+        @keyframes bloodReveal {
+            0% { opacity: 0; transform: scale(0.5); filter: blur(10px); color: #000; }
+            20% { opacity: 1; transform: scale(1.2); filter: blur(0); color: #ff0000; text-shadow: 0 0 20px #ff0000; }
+            100% { opacity: 1; transform: scale(1.1); color: #aa0000; text-shadow: 2px 0 0 red, -2px 0 0 blue; }
+        }
+        .blood-text {
+            opacity: 0;
+            animation: bloodReveal 4s ease-out forwards;
+        }
+
+        /* --- UV Gimmick Core Styles --- */
+        .uv-reveal { display: none; opacity: 0; transition: opacity 0.3s; }
+        body.uv-mode .uv-reveal { display: inline-block; opacity: 1; color: #ff00ff; text-shadow: 0 0 8px rgba(255,0,255,0.6); font-weight: bold; }
+        
+        .uv-hide { display: inline-block; transition: opacity 0.3s; }
+        body.uv-mode .uv-hide { display: none; }
+
+        .log-char { display: inline-block; width: 1.2ch; text-align: center; transition: all 0.4s ease; }
+        body.uv-mode .log-char:not(.glow) { opacity: 0.15; color: #444; }
+        body.uv-mode .log-char.glow { color: #ff00ff; text-shadow: 0 0 12px #ff00ff, 0 0 2px #fff; font-weight: 700; transform: scale(1.1); }
+
+        #scene-display::-webkit-scrollbar { width: 4px; }
+        #scene-display::-webkit-scrollbar-track { background: transparent; }
+        #scene-display::-webkit-scrollbar-thumb { background: #333; }
+        body.uv-mode #scene-display::-webkit-scrollbar-thumb { background: #60c; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-bunker"></div>
+    <div class="crt-overlay"></div>
+
+    <div id="game-container" class="max-w-2xl w-full bg-black/80 border border-gray-800 rounded shadow-2xl relative z-10 p-6 min-h-[600px] flex flex-col backdrop-blur-sm transition-colors duration-500">
+        
+        <!-- UV Toggle Button -->
+        <button id="uv-toggle-btn" onclick="toggleUV()" class="hidden absolute -top-12 right-0 bg-purple-900/80 hover:bg-purple-700 text-purple-200 border border-purple-500 px-4 py-2 rounded shadow-[0_0_15px_rgba(168,85,247,0.4)] font-bold tracking-widest transition-all z-50">
+            [ UV LIGHT : <span id="uv-status">OFF</span> ]
+        </button>
+
+        <!-- Header with Timer -->
+        <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-2 transition-colors duration-500" id="header-border">
+            <div class="flex flex-col">
+                <span id="timer-display" class="hidden text-red-500 font-mono text-2xl font-bold tracking-widest mb-1 drop-shadow-[0_0_5px_currentColor]">40:00</span>
+                <h1 class="text-xl font-bold pixel-font tracking-widest text-red-600 transition-colors duration-500" id="header-title">
+                    PROT: LAST_HOPE
+                </h1>
+            </div>
+            <div id="inventory" class="flex gap-2 flex-wrap justify-end max-w-[50%]"></div>
+        </div>
+
+        <!-- Main Scene -->
+        <div id="scene-display" class="flex-grow flex flex-col justify-start mb-6 text-lg leading-relaxed overflow-y-auto pr-2 relative">
+            <!-- Content -->
+        </div>
+
+        <!-- Interaction Area -->
+        <div id="action-area" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-auto">
+            <!-- Buttons -->
+        </div>
+
+        <!-- Modal -->
+        <div id="puzzle-modal" class="hidden fixed inset-0 bg-black/95 z-60 flex items-center justify-center p-4 backdrop-blur-md">
+            <div class="bg-gray-950 border border-red-900/50 p-8 rounded max-w-sm w-full text-center relative shadow-2xl">
+                <h2 id="puzzle-title" class="text-xl mb-6 text-red-500 pixel-font tracking-widest"></h2>
+                <div id="puzzle-content" class="mb-6"></div>
+                <button onclick="closePuzzle()" class="absolute top-2 right-2 text-gray-600 hover:text-white px-3 py-1 text-2xl transition">&times;</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            scene: 'title_screen',
+            inventory: [],
+            flags: {
+                hasUV: false,
+                lockerOpened: false
+            },
+            uvMode: false,
+            uvOffCount: 0,
+            timeLeft: 2400, // 40 minutes = 2400 seconds
+            timerActive: false,
+            timerInterval: null
+        };
+
+        // --- Timer Functions ---
+        function startTimer() {
+            if (state.timerActive) return;
+            state.timerActive = true;
+            document.getElementById('timer-display').classList.remove('hidden');
+            updateTimerDisplay();
+            
+            state.timerInterval = setInterval(() => {
+                state.timeLeft--;
+                updateTimerDisplay();
+                
+                if (state.timeLeft <= 0) {
+                    clearInterval(state.timerInterval);
+                    state.timerActive = false;
+                    closePuzzle();
+                    renderScene('game_over');
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const timerEl = document.getElementById('timer-display');
+            if (!timerEl) return;
+            
+            if (state.timeLeft <= 0) {
+                timerEl.innerText = "00:00";
+                return;
+            }
+            const m = Math.floor(state.timeLeft / 60).toString().padStart(2, '0');
+            const s = (state.timeLeft % 60).toString().padStart(2, '0');
+            timerEl.innerText = `${m}:${s}`;
+        }
+
+        function applyPenalty() {
+            state.timeLeft -= 300; // Subtract 5 minutes (300 seconds)
+            if (state.timeLeft < 0) state.timeLeft = 0;
+            updateTimerDisplay();
+            
+            const timerEl = document.getElementById('timer-display');
+            timerEl.classList.add('glitch-text');
+            setTimeout(() => {
+                timerEl.classList.remove('glitch-text');
+            }, 600);
+            
+            if (state.timeLeft <= 0) {
+                clearInterval(state.timerInterval);
+                state.timerActive = false;
+                closePuzzle();
+                renderScene('game_over');
+            }
+        }
+
+        // Text Matrix Generator for System Log (Core Gimmick)
+        function generateLogMatrix() {
+            const lines = [
+                { text: "SYSTEMS", glow: [0, 5] },
+                { text: "INITIAL", glow: [0, 6] },
+                { text: "XENOGEN", glow: [1] },
+                { text: "", glow: [] },
+                { text: "ENVIRON", glow: [3] },
+                { text: "IGNITES", glow: [4, 6] },
+                { text: "GHOSTS.", glow: [] },
+                { text: "HAZARDS", glow: [1] },
+                { text: "TERMINA", glow: [] },
+                { text: "", glow: [] },
+                { text: "FAILURE", glow: [0, 1] },
+                { text: "OVERRID", glow: [] },
+                { text: "UNKNOWN", glow: [2] },
+                { text: "RESET..", glow: [1] }
+            ];
+
+            let html = '<div class="mono-font text-base tracking-[0.3em] bg-black/60 p-4 rounded border border-gray-800 shadow-inner w-max mx-auto">';
+            lines.forEach(line => {
+                if (line.text === "") { html += '<br>'; return; }
+                html += '<div>';
+                for (let i = 0; i < line.text.length; i++) {
+                    const isGlow = line.glow.includes(i) ? 'glow' : '';
+                    html += `<span class="log-char ${isGlow}">${line.text[i]}</span>`;
+                }
+                html += '</div>';
+            });
+            html += '</div>';
+            return html;
+        }
+
+        const scenes = {
+            title_screen: {
+                text: `<div class="text-center py-8">
+                        <h1 class="text-5xl font-bold text-red-600 pixel-font mb-4 tracking-widest drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]">his smile</h1>
+                        
+                        <!-- ★ タイトル用画像挿入箇所 ★ -->
+                        <div class="my-6">
+                            <img src="images/title_char.png" alt="Title Image" class="mx-auto w-full max-w-lg aspect-[21/9] object-cover rounded shadow-[0_0_15px_rgba(220,38,38,0.5)] border border-red-900/50" onerror="this.src='https://placehold.co/800x300/1a1a1a/ff0000?text=Title+Image'">
+                        </div>
+
+                        <p class="text-gray-400 text-sm mb-8 mono-font mt-4 leading-relaxed">
+                            ※理不尽な暗号はありません。すべての謎は論理的に解けます。<br>
+                            <span class="text-red-400 font-bold block mt-2">※パスワード等の入力を間違えると、残り時間が【5分】減少します。</span>
+                        </p>
+                       </div>`,
+                actions: [
+                    { text: "GAME START", action: () => { startTimer(); renderScene('intro'); }, class: "bg-red-900/50 hover:bg-red-800/60 border-red-900 font-bold tracking-widest col-span-1 sm:col-span-2" },
+                    { text: "攻略ガイド（※ネタバレ注意）", action: () => openPuzzleModal('walkthrough_pw'), class: "col-span-1 sm:col-span-2" }
+                ]
+            },
+            walkthrough: {
+                text: `<div class="text-sm text-gray-300 leading-relaxed">
+                        <h3 class="text-red-400 font-bold mb-2 border-b border-red-900/50 pb-1 pixel-font tracking-widest">■ 攻略ガイド</h3>
+                        <p class="mb-4">このゲームは「一見無意味な情報が、視点を変えることで答えになる」構造になっています。</p>
+                        
+                        <h4 class="text-purple-400 font-bold mb-1">1. タブレットの解除 (PIN: 684)</h4>
+                        <p class="mb-4 border-l-2 border-gray-700 pl-3">壁のシステムログの<span class="text-yellow-300 font-bold">各行の最初の文字</span>を縦に読んでください。<br>
+                        「S I X」「E I G H T」「F O U R」となり、答えは「684」です。</p>
+
+                        <h4 class="text-purple-400 font-bold mb-1">2. UVライトの活用</h4>
+                        <p class="mb-4 border-l-2 border-gray-700 pl-3">タブレットを解除すると右上に「UV LIGHT」ボタンが出現します。これを使うと、見えなかった情報が浮かび上がります。</p>
+
+                        <h4 class="text-purple-400 font-bold mb-1">3. ロッカーの解除 (ダイヤル: 1823)</h4>
+                        <p class="mb-4 border-l-2 border-gray-700 pl-3">壁の「施設ID」をUVライトで照らしてください。<br>
+                        上部に「〇×□+△-◇=☆」という数式とメッセージが浮かびます。<br>
+                        メッセージに従い、区画IDの数字を「1」から順に「0」まで目で追って線を繋いでみてください。<br>
+                        すると、全体の線が大きな<b>「7」</b>の形に浮かび上がります。<br>
+                        これが☆の正体であり、数式は「〇×□+△-◇=7」となります。<br>
+                        この式が成立するようなバラバラの1桁の数字（〇, □, △, ◇）を考えます。<br>
+                        〇=1, □=8, △=2, ◇=3 を当てはめると、<br>
+                        「1 × 8 + 2 - 3 = 7」となり成立します。<br>
+                        よって答えは「1823」です。中で「SECURITY_KEY」を入手します。</p>
+
+                        <h4 class="text-purple-400 font-bold mb-1">4. 最終扉の解除 (パスワード: 君は3人)</h4>
+                        <p class="mb-2 border-l-2 border-gray-700 pl-3">扉のコンソールにキーを挿し、最終プロトコルへ。<br>
+                        ロッカーで見つけたメモの言葉「なぜなら君は君たちであり・・・・」と、指定されたフォーマット【漢字】【ひらがな】【数字】【漢字】を組み合わせます。<br>
+                        「君たち」という複数形の事実をフォーマットに当てはめると、答えは「君は3人」となります。<br>
+                        パスワードを入力するとクリアです。</p>
+                       </div>`,
+                actions: [
+                    { text: "タイトルへ戻る", next: "title_screen", class: "col-span-1 sm:col-span-2 mt-4" }
+                ]
+            },
+            intro: {
+                text: `<!-- ★ 覆面の人物の背景画像挿入箇所 ★ -->
+                       <div class="absolute inset-0 z-0 flex items-center justify-center opacity-15 pointer-events-none overflow-hidden rounded">
+                           <img src="images/mask_char.png" alt="Masked Character" class="w-full h-full object-cover mix-blend-screen" onerror="this.src='https://placehold.co/600x800/1a1a1a/666666?text=Mask+Character'">
+                       </div>
+                       
+                       <div class="relative z-10">
+                           冷たいコンクリートの感触で目が覚めた。<br><br>
+                           目の前には、ノイズの走る古いモニター。<br>
+                           そして傍らには、顔をすっぽりと覆面で隠した「もう一人の人間」が佇んでいた。<br><br>
+                           「被験者だいご…、聞こえますか」<br>
+                           モニターから掠れた合成音声が響く。<br><br>
+                           「ここは最後のシェルター『SMILE』。<br>
+                           外は汚染され、人類は滅亡しました。<br>
+                           酸素供給停止まで残り40分。脱出してください」<br><br>
+                           覆面の人物は無言のまま、こちらを見つめている。
+                       </div>`,
+                actions: [
+                    { text: "辺りを見渡す", next: "room_look" }
+                ]
+            },
+            room_look: {
+                text: `狭く薄暗い部屋だ。重厚な鋼鉄の扉が道を塞いでいる。<br>
+                       壁には色褪せた「施設ID」と「システムログ」のパネル。<br>
+                       部屋の隅にはホコリを被った「ロッカー」がある。<br>
+                       覆面の人物は、ただ静かにこちらの行動を追っている。`,
+                actions: () => {
+                    let acts = [
+                        { text: "覆面の人物を見る", next: "mask_check" },
+                        { text: "机のタブレットを調べる", next: "tablet_check" },
+                        { text: "壁のシステムログを見る", next: "log_check" },
+                        { text: "壁の施設IDを見る", next: "chart_check" },
+                        { text: "ロッカーを調べる", next: "locker_check" },
+                        { text: "鋼鉄の扉を調べる", next: "door_check", class: "col-span-1 sm:col-span-2 bg-red-950/40 hover:bg-red-900/60 mt-2 border-red-900" }
+                    ];
+                    return acts;
+                }
+            },
+            mask_check: {
+                text: `顔は厚い布で覆われており、表情は一切読み取れない。<br><br>
+                       だが、呼吸のリズム、立ち姿、ふとした手の動かし方……。<br>
+                       気味が悪いほどに、自分とタイミングがシンクロしている。<br>
+                       彼が何を考えているのか、言葉を交わさなくても、なぜか手に取るように分かる気がした。`,
+                actions: () => [{ text: "戻る", next: "room_look" }]
+            },
+            tablet_check: {
+                text: () => {
+                    if (state.flags.hasUV) return "ロック解除済みの【タブレット】だ。外部ツールとして『UVライト機能』を常時起動させている。";
+                    return "分厚い【タブレット端末】だ。電源を入れると、セキュリティロック画面が表示された。3桁のPINコードが必要だ。ヒントは何も書かれていないが…部屋の中の『システムログ』が関係しているかもしれない。";
+                },
+                actions: () => {
+                    if (!state.flags.hasUV) return [
+                        { text: "PINコード(3桁)を入力", action: () => openPuzzleModal('tablet') },
+                        { text: "戻る", next: "room_look" }
+                    ];
+                    return [{ text: "戻る", next: "room_look" }];
+                }
+            },
+            log_check: {
+                text: `壁のモニターに、エラーが起きたシステムログが羅列されている。<br>
+                       ただの英単語の羅列に見えるが、何か法則があるのだろうか？<br><br>
+                       ${generateLogMatrix()}`,
+                actions: () => [{ text: "戻る", next: "room_look" }]
+            },
+            chart_check: {
+                text: `壁に貼られた施設IDのパネルだ。<br><br>
+                       <div class="font-mono bg-gray-900/80 p-5 rounded border border-gray-700 mx-auto w-full text-center text-lg tracking-[0.2em] leading-loose relative">
+                           <div class="text-xs text-gray-500 mb-3 border-b border-gray-700 pb-4 min-h-[5rem] flex items-center justify-center">
+                               <span class="uv-hide">FACILITY_ID_LOG_v1.0</span>
+                               <span class="uv-reveal text-base tracking-normal text-purple-400 leading-relaxed mt-1">
+                                   <span class="text-xl font-bold tracking-widest">〇×□+△-◇=☆</span><br>
+                                   <span class="opacity-90 tracking-wider text-sm block mt-2">それぞれの記号はバラバラに絡み合う。<br>すべては1から順に0に収束する。<br>収束した結果は複雑に絡み合い星の輝きを彩るだろう。</span>
+                               </span>
+                           </div>
+                           <div class="text-left inline-block mt-2">
+                               区画 A : 6 3 4 5 0 1<br>
+                               区画 B : 8 2 0 6 4 9<br>
+                               区画 C : 2 1 8 7 7 1<br>
+                               区画 D : 0 2 4 8 5 1<br>
+                               区画 E : 9 2 4 9 0 2<br>
+                               区画 F : 4 1 4 0 6 1
+                           </div>
+                       </div>`,
+                actions: () => [{ text: "戻る", next: "room_look" }]
+            },
+            locker_check: {
+                text: () => {
+                    if (state.flags.lockerOpened) return `サビついたロッカーの中には、古びた【謎のメモ】が残されていた。<br><br>
+                    <div class="font-mono bg-gray-900/80 p-4 rounded border border-gray-700 text-sm text-gray-300 leading-relaxed text-left">
+                        夜を照らす紫の光と朝の陽ざしは交互に訪れ、3日目の朝に君は自分がだれか知ることになる。<br><br>
+                        しかし、君の四角い心の中に潜む悪魔は形を変える。数ではなく文に形を変えたとき君は君でない証明になる。<br><br>
+                        君の笑顔は嘘だと知った時、君は悲しんでしまうだろう。<br>
+                        しかし最後の笑顔だけは鏡越しに見てほしい。それは本当の笑顔に変わる。<br><br>
+                        最後の扉を開けるとき、最後の希望をもう一度思い出してほしい。<br>
+                        何度考えても、何度試しても、同じ結果にたどり着く。<br>
+                        なぜなら君は君たちであり・・・・
+                    </div>`;
+                    return `職員用ロッカーだ。4桁のダイヤル錠がかかっている。<br>錠の横には『〇、□、△、◇の解を入力せよ』と書かれている。ただ数字を拾うだけでは開かないようだ。`;
+                },
+                actions: () => {
+                    if (!state.flags.lockerOpened) return [
+                        { text: "ダイヤルを合わせる", action: () => openPuzzleModal('locker') },
+                        { text: "戻る", next: "room_look" }
+                    ];
+                    return [{ text: "戻る", next: "room_look" }];
+                }
+            },
+            door_check: {
+                text: () => {
+                    if (!state.inventory.includes('SECURITY_KEY')) {
+                        return `重厚な鋼鉄の扉だ。最終ゲートコンソールを起動するには、物理的な【SECURITY_KEY】を差し込む必要がある。`;
+                    }
+                    return `コンソールに【SECURITY_KEY】を挿入した。スクリーンが赤く明滅し、最終認証プロトコルが起動した！`;
+                },
+                actions: () => {
+                    if (!state.inventory.includes('SECURITY_KEY')) return [{ text: "戻る", next: "room_look" }];
+                    return [
+                        { text: "最終認証プロトコルへ", action: () => openPuzzleModal('final'), class: "col-span-1 sm:col-span-2 bg-red-800 hover:bg-red-700 font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.3)]" },
+                        { text: "戻る", next: "room_look" }
+                    ];
+                }
+            },
+            escape_success: {
+                text: `『認証承認。システムロックを解除します。』<br><br>
+                       プシューッという重い排気音と共に、鋼鉄の扉がゆっくりと開いた。<br><br>
+                       その瞬間、隣にいた覆面の人物が、ゆっくりと自らのマスクに手をかけた。<br>
+                       布の下から現れたのは……自分と全く同じ顔。自分自身の姿だった。`,
+                actions: [
+                    { text: "開かれた扉の向こうを見る", next: "ending" }
+                ]
+            },
+            ending: {
+                text: `<!-- ★ エンディングのクローン画像挿入箇所 ★ -->
+                       <div class="mb-6">
+                           <img src="images/clones.png" alt="Two Clones Smiling" class="mx-auto w-full max-w-xl aspect-[21/9] object-cover rounded border border-red-900 shadow-[0_0_25px_rgba(220,38,38,0.4)] fade-in-line" style="animation-delay: 0.5s;" onerror="this.src='https://placehold.co/800x350/0a0a0a/ff0000?text=True+Smile'">
+                       </div>
+
+                       <div class="space-y-6 text-base sm:text-lg">
+                           <p class="fade-in-line" style="animation-delay: 3.0s;">息を呑む暇もなく、眩い光に包まれた扉の向こうへ視線を移す。</p>
+                           <p class="fade-in-line" style="animation-delay: 6.0s;">光の中に立っていたのは——</p>
+                           <p class="fade-in-line font-bold" style="animation-delay: 9.0s;">さらにもう一人、自分と全く同じ顔をした人間だった。</p>
+                           <p class="fade-in-line" style="animation-delay: 12.0s;">彼らは同時に、鏡を見るかのような無機質な、しかし完璧な「本当の笑顔」を浮かべた。</p>
+                           <p class="fade-in-line text-xl font-bold text-red-500 tracking-widest mt-4" style="animation-delay: 16.0s;">「なぜなら君は君たちであり・・・・」</p>
+                           <p class="blood-text text-4xl font-bold tracking-[0.5em] mt-10 mb-8 text-center pixel-font" style="animation-delay: 20.0s;">「僕だから」</p>
+                           <p class="fade-in-line text-yellow-500 font-bold text-3xl mt-16 mb-8 text-center tracking-widest pixel-font drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]" style="animation-delay: 24.0s;">EXPERIMENT COMPLETED</p>
+                       </div>`,
+                actions: [
+                    { text: "システムを再起動する", action: () => location.reload() }
+                ]
+            },
+            game_over: {
+                text: `『酸素供給システム、完全停止。』<br><br>
+                       耳障りなアラート音が鳴り響き、やがてそれも途絶えた。<br>
+                       息苦しさが全身を襲い、視界が急速に暗転していく。<br>
+                       薄れゆく意識の中、傍らに立つ覆面の人物が、こちらを静かに見下ろしているのが見えた。<br><br>
+                       <span class="text-red-600 font-bold text-3xl block mt-8 text-center tracking-widest pixel-font glitch-text">SYSTEM SHUTDOWN</span>`,
+                actions: [
+                    { text: "システムを再起動する", action: () => location.reload() }
+                ]
+            }
+        };
+
+        function renderScene(sceneKey) {
+            state.scene = sceneKey;
+            
+            // ゲーム終了系のシーンならタイマーをストップ
+            if (sceneKey === 'escape_success' || sceneKey === 'ending' || sceneKey === 'game_over') {
+                clearInterval(state.timerInterval);
+                state.timerActive = false;
+                
+                // ゲームオーバー時はトーストメッセージを消す
+                if (sceneKey === 'game_over') {
+                    const existing = document.getElementById('toast-message');
+                    if (existing) existing.remove();
+                }
+            }
+            
+            const headerTitle = document.getElementById('header-title');
+            if (sceneKey === 'door_check') {
+                headerTitle.innerHTML = `<span class="uv-hide">PROT: LAST_HOPE</span><span class="uv-reveal">SIM: human_TEST</span>`;
+            } else {
+                headerTitle.innerHTML = "PROT: LAST_HOPE";
+            }
+
+            const scene = scenes[sceneKey];
+            const display = document.getElementById('scene-display');
+            const actions = document.getElementById('action-area');
+            
+            const textContent = typeof scene.text === 'function' ? scene.text() : scene.text;
+            display.innerHTML = `<div class="fade-in">${textContent}</div>`;
+            actions.innerHTML = '';
+
+            const actionsList = typeof scene.actions === 'function' ? scene.actions() : scene.actions;
+
+            actionsList.forEach(act => {
+                const btn = document.createElement('button');
+                const baseClass = "w-full py-3 px-4 bg-gray-900/80 hover:bg-gray-800 border border-gray-700 rounded text-center transition duration-200 shadow";
+                btn.className = act.class ? `${baseClass} ${act.class}` : baseClass;
+                
+                // エンディング画面のボタンは最後にフェードインさせる
+                if (sceneKey === 'ending') {
+                    btn.style.opacity = '0';
+                    btn.style.animation = 'fadeInLine 2s ease-in-out forwards';
+                    btn.style.animationDelay = '27s';
+
+                    // 「僕だから」の出現に合わせた画面の揺れと暗転演出
+                    setTimeout(() => {
+                        const container = document.getElementById('game-container');
+                        container.classList.add('shake');
+                        document.body.style.backgroundColor = '#1a0000'; // 背景を一瞬赤黒くする
+                        setTimeout(() => {
+                            container.classList.remove('shake');
+                        }, 500);
+                    }, 20000); // 20.0sのテキストアニメーションと同期
+                }
+
+                btn.innerHTML = act.text;
+                btn.onclick = () => {
+                    state.uvOffCount = 0; // 他の行動をとった場合は連続切り替えカウントをリセット
+                    if (act.action) act.action();
+                    if (act.next) renderScene(act.next);
+                };
+                actions.appendChild(btn);
+            });
+        }
+
+        function getItem(name) {
+            if (!state.inventory.includes(name)) {
+                state.inventory.push(name);
+                const inv = document.getElementById('inventory');
+                inv.innerHTML = '';
+                state.inventory.forEach(item => {
+                    const span = document.createElement('span');
+                    span.className = "text-xs px-2 py-1 bg-indigo-950/80 border border-indigo-500/50 text-indigo-200 rounded tracking-wider";
+                    span.innerText = item;
+                    inv.appendChild(span);
+                });
+                showMessage(`[ ${name} ] を獲得`);
+            }
+        }
+
+        function showMessage(msg) {
+            const existing = document.getElementById('toast-message');
+            if (existing) existing.remove();
+
+            const div = document.createElement('div');
+            div.id = 'toast-message';
+            div.className = "fixed top-12 left-1/2 -translate-x-1/2 bg-gray-100 text-black px-8 py-3 rounded shadow-[0_0_20px_rgba(255,255,255,0.4)] z-[100] fade-in font-bold text-center tracking-widest mono-font text-sm border-2 border-white";
+            div.innerHTML = msg;
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transition = 'opacity 0.4s';
+                setTimeout(() => div.remove(), 400);
+            }, 3000);
+        }
+
+        function showCreepyMessage(text) {
+            const div = document.createElement('div');
+            div.className = "fixed inset-0 z-[200] flex items-center justify-center pointer-events-none mix-blend-difference overflow-hidden";
+            div.innerHTML = `<span class="text-[40vw] text-red-600 pixel-font font-bold glitch-text select-none">${text}</span>`;
+            document.body.appendChild(div);
+            
+            const container = document.getElementById('game-container');
+            container.classList.add('shake');
+
+            setTimeout(() => {
+                div.remove();
+                container.classList.remove('shake');
+            }, 600);
+        }
+
+        function toggleUV() {
+            if (state.flags.lockerOpened) {
+                if (state.uvMode) {
+                    state.uvOffCount++;
+                    if (state.uvOffCount === 3) {
+                        setTimeout(() => showCreepyMessage("君"), 50);
+                        state.uvOffCount = 0;
+                    }
+                }
+            } else {
+                state.uvOffCount = 0;
+            }
+
+            state.uvMode = !state.uvMode;
+            document.body.classList.toggle('uv-mode', state.uvMode);
+            
+            const status = document.getElementById('uv-status');
+            status.innerText = state.uvMode ? 'ON' : 'OFF';
+            status.className = state.uvMode ? 'text-purple-400' : 'text-purple-200';
+            
+            const headerTitle = document.getElementById('header-title');
+            const headerBorder = document.getElementById('header-border');
+            const timerDisplay = document.getElementById('timer-display');
+            
+            if(state.uvMode) {
+                headerTitle.classList.replace('text-red-600', 'text-purple-500');
+                headerBorder.classList.replace('border-gray-800', 'border-purple-900/50');
+                timerDisplay.classList.replace('text-red-500', 'text-purple-400');
+            } else {
+                headerTitle.classList.replace('text-purple-500', 'text-red-600');
+                headerBorder.classList.replace('border-purple-900/50', 'border-gray-800');
+                timerDisplay.classList.replace('text-purple-400', 'text-red-500');
+            }
+
+            renderScene(scenes[state.scene] ? state.scene : 'room_look');
+        }
+
+        function openPuzzleModal(type) {
+            const modal = document.getElementById('puzzle-modal');
+            const title = document.getElementById('puzzle-title');
+            const content = document.getElementById('puzzle-content');
+            modal.classList.remove('hidden');
+
+            const inputBaseStyle = "w-full bg-black/50 border-b-2 text-center text-4xl tracking-[0.5em] py-4 mb-6 mono-font outline-none transition-colors";
+
+            if (type === 'walkthrough_pw') {
+                title.innerText = "GUIDE ACCESS";
+                content.innerHTML = `
+                    <div class="text-xs text-gray-400 mb-6 tracking-widest">
+                        攻略ガイドを閲覧するためのパスコード(4桁)を入力してください。
+                    </div>
+                    <input type="text" id="puzzle-input" maxlength="4" class="${inputBaseStyle} border-gray-600 text-gray-200 focus:border-white" placeholder="----" autocomplete="off">
+                    <button onclick="checkPuzzle('walkthrough_pw')" class="w-full py-3 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white font-bold rounded tracking-widest">ACCESS</button>
+                `;
+            } else if (type === 'tablet') {
+                title.innerText = "TABLET LOGIN";
+                content.innerHTML = `
+                    <div class="text-xs text-gray-400 mb-6 tracking-widest leading-relaxed">
+                        パスコードは『縦の糸』に隠されている。<br>エラーログの最初の文字を繋げ。
+                    </div>
+                    <input type="text" id="puzzle-input" maxlength="3" class="${inputBaseStyle} border-blue-900 text-blue-400 focus:border-blue-500" placeholder="---" autocomplete="off">
+                    <button onclick="checkPuzzle('tablet')" class="w-full py-3 bg-blue-900/50 hover:bg-blue-800 border border-blue-800 text-blue-100 font-bold rounded tracking-widest">UNLOCK</button>
+                `;
+            } else if (type === 'locker') {
+                title.innerText = "LOCKER DIAL";
+                content.innerHTML = `
+                    <div class="text-xs text-gray-400 mb-6 tracking-widest">
+                        数式を成立させる『〇、□、△、◇』の4桁を入力せよ。<br>星の輝きを導き出せ。
+                    </div>
+                    <input type="text" id="puzzle-input" maxlength="4" class="${inputBaseStyle} border-gray-600 text-gray-200 focus:border-white" placeholder="----" autocomplete="off">
+                    <button onclick="checkPuzzle('locker')" class="w-full py-3 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white font-bold rounded tracking-widest">OPEN</button>
+                `;
+            } else if (type === 'final') {
+                const hintColor = state.uvMode ? 'text-purple-300' : 'text-red-300';
+                title.innerText = "FINAL OVERRIDE";
+                content.innerHTML = `
+                    <div class="text-left text-sm ${hintColor} mb-6 bg-black/60 p-5 border border-red-900/30 rounded leading-loose mono-font">
+                        『警告。外部環境は致死レベル。<br>
+                        　脱出は自己責任となる。<br><br>
+                        　最終認証：<br>
+                        　パスワードを入力せよ。<br>
+                        　[漢字] [ひらがな] [数字] [漢字]』
+                    </div>
+                    <input type="text" id="puzzle-input" maxlength="4" class="${inputBaseStyle} border-red-900 text-red-500 focus:border-red-500" placeholder="〇〇〇〇" autocomplete="off">
+                    <button onclick="checkPuzzle('final')" class="w-full py-4 bg-red-900/60 hover:bg-red-800 border border-red-800 text-white font-bold rounded tracking-widest shadow-[0_0_15px_rgba(220,38,38,0.2)]">EXECUTE</button>
+                `;
+            }
+            
+            setTimeout(() => document.getElementById('puzzle-input').focus(), 50);
+        }
+
+        function closePuzzle() {
+            document.getElementById('puzzle-modal').classList.add('hidden');
+        }
+
+        function checkPuzzle(type) {
+            const valRaw = document.getElementById('puzzle-input').value;
+            const val = valRaw.toUpperCase();
+            
+            if (type === 'walkthrough_pw') {
+                if (val === "0000") {
+                    closePuzzle();
+                    renderScene('walkthrough');
+                } else {
+                    showMessage("ACCESS DENIED");
+                }
+            }
+            else if (type === 'tablet') {
+                if (val === "684") {
+                    closePuzzle();
+                    state.flags.hasUV = true;
+                    document.getElementById('uv-toggle-btn').classList.remove('hidden');
+                    showMessage("タブレット起動。外部ツール【UV LIGHT】を同期。");
+                    renderScene('tablet_check');
+                } else {
+                    applyPenalty();
+                    showMessage("ERROR: PIN MISMATCH<br><span class='text-red-500 mt-1 inline-block'>[TIME PENALTY: -5 MIN]</span>");
+                }
+            } 
+            else if (type === 'locker') {
+                if (val === "1823") {
+                    closePuzzle();
+                    state.flags.lockerOpened = true;
+                    showMessage("ガチャッ…ロックが解除された。");
+                    getItem('SECURITY_KEY');
+                    getItem('謎のメモ');
+                    renderScene('locker_check');
+                } else {
+                    applyPenalty();
+                    showMessage("ERROR: INVALID CODE<br><span class='text-red-500 mt-1 inline-block'>[TIME PENALTY: -5 MIN]</span>");
+                }
+            }
+            else if (type === 'final') {
+                if (valRaw === "君は3人") {
+                    closePuzzle();
+                    renderScene('escape_success');
+                } else {
+                    applyPenalty();
+                    showMessage("ACCESS DENIED: 虚構を証明できません。<br><span class='text-red-500 mt-1 inline-block'>[TIME PENALTY: -5 MIN]</span>");
+                }
+            }
+        }
+
+        window.onload = () => {
+            renderScene('title_screen');
+        };
+    </script>
+</body>
+</html>
